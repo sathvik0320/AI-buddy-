@@ -1,2 +1,2 @@
 # AI-buddy-
-linear regression simple example for stock market prediction multi variable linear regression 
+so here example code and dataset for few machine algorithm's
