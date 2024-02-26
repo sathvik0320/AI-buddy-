@@ -58,8 +58,7 @@ def make_cordinates(copy_image, line_parameters):
 #reads image numpy array (imread) 
 #image = cv2.imread("lane.jpeg")
 
-video = cv2.VideoCapture("lane.mp4")
-
+video = cv2.VideoCapture("lane.mp4")#use zero instead of lane.mp4 for laptop camera 
 while(video.isOpened()):
   _,frame = video.read()
 #copyig image (duplcating the image)
