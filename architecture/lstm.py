@@ -8,7 +8,7 @@ import pandas as pd
 import  matplotlib.pyplot as plt
 
 def data():
-  ds  = pd.read_csv("YESBANK.NS.csv")
+  ds  = pd.read_csv("/home/sathvik/YESBANK.NS.csv")
   print(ds.head())
   print(ds.tail())
   ds_s = ds.loc[:,["High","Low","Volume"]]
@@ -42,7 +42,17 @@ def weights(hd_l,xl):
     wi = np.random.rand(hd_l,hd_l+xl)
     wc = np.random.rand(hd_l,hd_l+xl)
     wo = np.random.rand(hd_l,hd_l+xl)
-    #biases
+
+    wim = np.random.rand(hd_l,hd_l+xl)
+    wom = np.random.rand(hd_l,hd_l+xl)
+    wfm = np.random.rand(hd_l,hd_l+xl)
+    wcm = np.random.rand(hd_l,hd_l+xl)
+
+    wiv = np.random.rand(hd_l,hd_l+xl)
+    wov = np.random.rand(hd_l,hd_l+xl)
+    wfv = np.random.rand(hd_l,hd_l+xl)
+    wcv = np.random.rand(hd_l,hd_l+xl)
+    #biases ,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv
     # biases dimensions are equal to hidden state dimensions because after matrix multiplication resultant matrix will be n dimensions of hidden state (where we add biases to it so ...)
     bf = np.random.rand(hd_l)
     bi = np.random.rand(hd_l)
@@ -52,10 +62,16 @@ def weights(hd_l,xl):
     cp = np.random.rand(hd_l)
     w1= np.random.rand(d1,hd_l)
     w2= np.random.rand(d2,d1)
+
+    w1m=np.random.rand(d1,hd_l)
+    w2m=np.random.rand(d2,d1)
+    w1v=np.random.rand(d1,hd_l)
+    w2v=np.random.rand(d2,d1)
+
     b1=np.random.rand(d1)
     b2=np.random.rand(d2)
 
-    return wf,wi,wc,wo,bf,bi,bc,bo,hp,cp,w1,b1,w2,b2
+    return wf,wi,wc,wo,bf,bi,bc,bo,hp,cp,w1,b1,w2,b2,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv
 
 def sigmoid(x):
     return 1 / (1+np.exp(-x))
@@ -139,8 +155,11 @@ def loss():
   e = np.mean((y_true - y_predict)**2,axis = 0)
   e = np.mean(e)
 
-def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi,wc,wo,bf,bi,bc,bo):
-
+def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi,wc,wo,bf,bi,bc,bo,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfv,wcv,t):
+     #epsilon for non zero division
+     epsilon = 1e-8
+     beta1 = 0.7
+     beta2 = 0.777
      #input into sigmoids
      zf= (np.dot(wf,co) + bf)
      zi= (np.dot(wi,co) + bi)
@@ -151,8 +170,7 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
      #output delta error
      #d2o is output predicted
      #r term is 0.1
-     lr =0.1
-     xt_1 = dn[b + 1]
+     xt_1 = dn[b]
      od = (d2o - xt_1)*sigmoid_d(d2o)
      he = np.dot(od,w2)
      hd = he*sigmoid_d(d1o)
@@ -176,39 +194,55 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
 
      #updating
      #updating weights of dense layers
-     re = lr*w2
      od=od.reshape(-1,1)
      d1o = d1o.reshape(-1,1).T
      g2 = np.dot(od,d1o)
-     g2 = g2 + re
-     w2 = w2 + g2*alpha
 
-     re = lr*w1
      hd = hd.reshape(-1,1)
      ht=ht.reshape(-1,1)
      g1 = np.dot(hd,ht.T)
-     g1 = g1 + re
-     w1 = w1 + g1*alpha
 
      #based updation of dense layers
      b1 += np.sum(od)*alpha
      b2 += np.sum(hd)*alpha
 
-     re = lr*wi
-     gi = gi + re
-     wi -= gi*alpha
+     #calculatng average momentums for w1,w2,wi,wo,wf,wc,(gradients,and squared gradients)
+     w1m = w1m*beta1 + (1-beta1)*g1
+     w2m = w2m*beta1 + (1-beta1)*g2
+     wim = wim*beta1 + (1-beta1)*gi
+     wom = wom*beta1 + (1-beta1)*go
+     wfm = wfm*beta1 + (1-beta1)*gf
+     wcm = wcm*beta1 + (1-beta1)*gc
 
-     re = lr*wo
-     go = go + re
-     wo -= go*alpha
+     w1v = w1v*beta1 + (1-beta1)*g1**2
+     w2v = w2v*beta1 + (1-beta1)*g2**2
+     wiv = wiv*beta1 + (1-beta1)*gi**2
+     wov = wov*beta1 + (1-beta1)*go**2
+     wfv = wfv*beta1 + (1-beta1)*gf**2
+     wcv = wcv*beta1 + (1-beta1)*gc**2
 
-     re = lr*wf
-     gf = gf + re
-     wf -= gf*alpha
+     #calculating the biase corrected weights as every momenteum average should be bias corrected
+     w1cm = w1m/(1-beta1**t)
+     w2cm = w2m/(1-beta1**t)
+     wicm = wim/(1-beta1**t)
+     wocm = wom/(1-beta1**t)
+     wfcm = wfm/(1-beta1**t)
+     wccm = wcm/(1-beta1**t)
 
-     re = lr*wc
-     gc = gc + re
-     wc -= gc*alpha
+     w1cv = w1v/(1-beta2**t)
+     w2cv = w2v/(1-beta2**t)
+     wicv = wiv/(1-beta2**t)
+     wocv = wov/(1-beta2**t)
+     wfcv = wfv/(1-beta2**t)
+     wccv = wcv/(1-beta2**t)
+
+     #updating the parameters
+     w1 = w1 - (w1cm/(np.sqrt(w1cv)+epsilon))*alpha
+     w2 = w2 - (w2cm/(np.sqrt(w2cv)+epsilon))*alpha
+     wi = wi - (wicm/(np.sqrt(wicv)+epsilon))*alpha
+     wo = wo - (wocm/(np.sqrt(wocv)+epsilon))*alpha
+     wf = wf - (wfcm/(np.sqrt(wfcv)+epsilon))*alpha
+     wc = wc - (wccm/(np.sqrt(wccv)+epsilon))*alpha
 
      bi -= bgi*alpha
      bo -= bgo*alpha
@@ -225,10 +259,10 @@ class lstm:
      #dnl = len(dn)
      print("length of dataset" + " "+ str(dnl))
      print("calculating random values for weights and biases ...")
-     wf,wi,wc,wo,bf,bi,bc,bo,hp,cp,w1,b1,w2,b2 = weights(hd_l,xl)
+     wf,wi,wc,wo,bf,bi,bc,bo,hp,cp,w1,b1,w2,b2,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv = weights(hd_l,xl)
 
      i = 0
-     while  i <= p:
+     while  i < p:
        print("*********************************")
        j = i
        print("i value " + str(i))
@@ -244,18 +278,18 @@ class lstm:
           j =j+1
        #print("hdden output of 5 timesteps" + " " + str(ht))
        print("inputting into dense layers done with lstm layers...")
-       d1o = dense103(ht,d1,d2,hd_l)
-       d2o = dense3(d1o,d1,d2)
+       d1o = dense103(ht,d1,d2,hd_l,w1,b1)
+       d2o = dense3(d1o,d1,d2,w2,b2)
        print("done with dense layers...")
        if mode == "back" or mode =="pb":
-        w1,w2,b1,b2,wi,wf,wc,wo,bi,bf,bo,bc= backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cpp,fo,it,c,ot,co,wf,wi,wc,wo,bf,bi,bc,bo)
+        w1,w2,b1,b2,wi,wf,wc,wo,bi,bf,bo,bc= backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cpp,fo,it,c,ot,co,wf,wi,wc,wo,bf,bi,bc,bo,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv,i)
         print("back propogation done")
        i += 1
-     if mode="pb":
+     if mode=="pb":
        hp=ht
        cp=ct
        i=0
-       while  i <= p:
+       while  i < p:
          print("*********************************")
          j = i
          print("i value " + str(i))
@@ -271,15 +305,15 @@ class lstm:
            j =j+1
          #print("hdden output of 5 timesteps" + " " + str(ht))
          print("inputting into dense layers done with lstm layers...")
-         d1o = dense103(ht,d1,d2,hd_l)
-         d2o = dense3(d1o,d1,d2)
+         d1o = dense103(ht,d1,d2,hd_l,w1,b1)
+         d2o = dense3(d1o,d1,d2,w2,b2)
          i += 1
-     if i>p:
+     if i==p:
          hp =ht
          cp =ct
          predict=[]
          predict = np.array(predict)
-         while  i <= (p + da) :
+         while  i < (p + da) :
             print("*********************************")
             j = i
             print("i value " + str(i))
@@ -295,10 +329,10 @@ class lstm:
               j =j+1
             #print("hdden output of 5 timesteps" + " " + str(ht))
             print("inputting into dense layers done with lstm layers...")
-            d1o = dense103(ht,d1,d2,hd_l)
-            d2o = dense3(d1o,d1,d2)
+            d1o = dense103(ht,d1,d2,hd_l,w1,b1)
+            d2o = dense3(d1o,d1,d2,w2,b2)
             dn = np.append(dn,d2o)
-            predict=np.append(predict,d2o)
+            predict = np.append(predict,d2o)
             i += 1
      print("printing the predicted values")
      time.sleep(5)
@@ -323,9 +357,10 @@ d1 = int(input("dense function1 no of neurons(103) :"))
 d2 = int(input("dense function2 no of neurons(3) :"))
 mode = input("give mode of program back for backropogation/forward and predict pb :")
 if mode == "pb":
-      da = input("give number of days to predict :")
+      da = int(input("give number of days to predict :"))
 alpha = float(input("give the value for learning rate :"))
 dnl = len(dn)
 p=dnl - ts
 lstm(hL,xl,ts,dn,d1,d2,mode,alpha,p,da)
 #hL == hd_l
+
