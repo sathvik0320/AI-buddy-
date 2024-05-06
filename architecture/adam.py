@@ -9,9 +9,12 @@
 import numpy as np
 import time
 #epsilon for excluding the condition of division by 0
-epsilon = 0.0002
+epsilon = 0.000000002
 l = int(input("give input number of parameters w1:first layer weights\n w2: weights for layer2\n b1: biases for layer one b2 for layer2\n total 4 biases means two layers")
 l=l/2 #number of layers now
+#betas are decay constnts for calculating the moving avergaes
+beta1=0.9
+beta2=0.8
 v={}
 s={}
 parameters={"w1":np.random.rand(),
