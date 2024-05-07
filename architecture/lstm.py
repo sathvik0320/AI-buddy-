@@ -16,7 +16,7 @@ def data():
   print("after reseting the to high low volume\n")
   print(ds_s.head())
   print(ds_s.tail())
-
+  print(ds_s.shape)
   #use this if want to plot
 
   #plt.plot(ds_s["High"],label = "High")
@@ -34,24 +34,26 @@ def data():
   print(dn.tail())
   print("converting pandas to numpy array\n")
   dn = np.array(dn)
-  return dn
+  return dn,min,max
 
 def weights(hd_l,xl):
     #weights should in dimesniosns of length of hidden state X (hiddenstate + input)
-    wf = np.random.rand(hd_l,hd_l+xl)
-    wi = np.random.rand(hd_l,hd_l+xl)
-    wc = np.random.rand(hd_l,hd_l+xl)
-    wo = np.random.rand(hd_l,hd_l+xl)
+    #xavier initialization
+    scale = np.sqrt(2 / (hd_l + xl))
+    wf = np.random.rand(hd_l,hd_l+xl)*scale
+    wi = np.random.rand(hd_l,hd_l+xl)*scale
+    wc = np.random.rand(hd_l,hd_l+xl)*scale
+    wo = np.random.rand(hd_l,hd_l+xl)*scale
 
-    wim = np.random.rand(hd_l,hd_l+xl)
-    wom = np.random.rand(hd_l,hd_l+xl)
-    wfm = np.random.rand(hd_l,hd_l+xl)
-    wcm = np.random.rand(hd_l,hd_l+xl)
+    wim = np.zeros((hd_l,hd_l+xl))
+    wom = np.zeros((hd_l,hd_l+xl))
+    wfm = np.zeros((hd_l,hd_l+xl))
+    wcm = np.zeros((hd_l,hd_l+xl))
 
-    wiv = np.random.rand(hd_l,hd_l+xl)
-    wov = np.random.rand(hd_l,hd_l+xl)
-    wfv = np.random.rand(hd_l,hd_l+xl)
-    wcv = np.random.rand(hd_l,hd_l+xl)
+    wiv = np.zeros((hd_l,hd_l+xl))
+    wov = np.zeros((hd_l,hd_l+xl))
+    wfv = np.zeros((hd_l,hd_l+xl))
+    wcv = np.zeros((hd_l,hd_l+xl))
     #biases ,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv
     # biases dimensions are equal to hidden state dimensions because after matrix multiplication resultant matrix will be n dimensions of hidden state (where we add biases to it so ...)
     bf = np.random.rand(hd_l)
@@ -60,13 +62,16 @@ def weights(hd_l,xl):
     bo = np.random.rand(hd_l)
     hp = np.random.rand(hd_l)
     cp = np.random.rand(hd_l)
-    w1= np.random.rand(d1,hd_l)
-    w2= np.random.rand(d2,d1)
 
-    w1m=np.random.rand(d1,hd_l)
-    w2m=np.random.rand(d2,d1)
-    w1v=np.random.rand(d1,hd_l)
-    w2v=np.random.rand(d2,d1)
+    scale1 = np.sqrt(2/(d1+hd_l))
+    w1 = np.random.rand(d1,hd_l)*scale1
+    scale2 = np.sqrt(2/(d2 + d1))
+    w2 = np.random.rand(d2,d1)*scale2
+
+    w1m=np.zeros((d1,hd_l))
+    w2m=np.zeros((d2,d1))
+    w1v=np.zeros((d1,hd_l))
+    w2v=np.zeros((d2,d1))
 
     b1=np.random.rand(d1)
     b2=np.random.rand(d2)
@@ -109,7 +114,6 @@ def output(wo,co,bo):
    return sigmoid(wn + bo)
 
 def cc(hp,xt):
-
    xt = np.array(xt)
    return  np.concatenate((hp,xt),axis=0)
 
@@ -149,17 +153,13 @@ def dense3(d1o,d1,d2,w2,b2):
    out = mu + b2
    return sigmoid(out)
 
-def loss():
-
-  #mean square error because we have used min max scaler 0-1
-  e = np.mean((y_true - y_predict)**2,axis = 0)
-  e = np.mean(e)
+   #mean square error because we have used min max scaler 0-1
 
 def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi,wc,wo,bf,bi,bc,bo,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfv,wcv,t):
      #epsilon for non zero division
      epsilon = 1e-8
-     beta1 = 0.7
-     beta2 = 0.777
+     beta1 = 0.5
+     beta2 = 0.555
      #input into sigmoids
      zf= (np.dot(wf,co) + bf)
      zi= (np.dot(wi,co) + bi)
@@ -171,6 +171,8 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
      #d2o is output predicted
      #r term is 0.1
      xt_1 = dn[b]
+     loss = (d2o - xt_1)
+     print("loss" + str(loss))
      od = (d2o - xt_1)*sigmoid_d(d2o)
      he = np.dot(od,w2)
      hd = he*sigmoid_d(d1o)
@@ -221,28 +223,37 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
      wfv = wfv*beta1 + (1-beta1)*gf**2
      wcv = wcv*beta1 + (1-beta1)*gc**2
 
-     #calculating the biase corrected weights as every momenteum average should be bias corrected
-     w1cm = w1m/(1-beta1**t)
-     w2cm = w2m/(1-beta1**t)
-     wicm = wim/(1-beta1**t)
-     wocm = wom/(1-beta1**t)
-     wfcm = wfm/(1-beta1**t)
-     wccm = wcm/(1-beta1**t)
+     if t >= 1:
+       #calculating the biase corrected weights as every momenteum average should be bias corrected
+       w1cm = w1m/(1-beta1**t)
+       w2cm = w2m/(1-beta1**t)
+       wicm = wim/(1-beta1**t)
+       wocm = wom/(1-beta1**t)
+       wfcm = wfm/(1-beta1**t)
+       wccm = wcm/(1-beta1**t)
 
-     w1cv = w1v/(1-beta2**t)
-     w2cv = w2v/(1-beta2**t)
-     wicv = wiv/(1-beta2**t)
-     wocv = wov/(1-beta2**t)
-     wfcv = wfv/(1-beta2**t)
-     wccv = wcv/(1-beta2**t)
+       w1cv = w1v/(1-beta2**t)
+       w2cv = w2v/(1-beta2**t)
+       wicv = wiv/(1-beta2**t)
+       wocv = wov/(1-beta2**t)
+       wfcv = wfv/(1-beta2**t)
+       wccv = wcv/(1-beta2**t)
+       #updating the parameters
+       w1 = w1 - (w1cm/(np.sqrt(w1cv)+epsilon))*alpha
+       w2 = w2 - (w2cm/(np.sqrt(w2cv)+epsilon))*alpha
+       wi = wi - (wicm/(np.sqrt(wicv)+epsilon))*alpha
+       wo = wo - (wocm/(np.sqrt(wocv)+epsilon))*alpha
+       wf = wf - (wfcm/(np.sqrt(wfcv)+epsilon))*alpha
+       wc = wc - (wccm/(np.sqrt(wccv)+epsilon))*alpha
 
-     #updating the parameters
-     w1 = w1 - (w1cm/(np.sqrt(w1cv)+epsilon))*alpha
-     w2 = w2 - (w2cm/(np.sqrt(w2cv)+epsilon))*alpha
-     wi = wi - (wicm/(np.sqrt(wicv)+epsilon))*alpha
-     wo = wo - (wocm/(np.sqrt(wocv)+epsilon))*alpha
-     wf = wf - (wfcm/(np.sqrt(wfcv)+epsilon))*alpha
-     wc = wc - (wccm/(np.sqrt(wccv)+epsilon))*alpha
+     if t == 0:
+       #updating parameters without biase correction as i initilzed the momentums to 0 in initial
+       w1 = w1 - (w1m/(np.sqrt(w1v)+epsilon))*alpha
+       w2 = w2 - (w2m/(np.sqrt(w2v)+epsilon))*alpha
+       wi = wi - (wim/(np.sqrt(wiv)+epsilon))*alpha
+       wo = wo - (wom/(np.sqrt(wov)+epsilon))*alpha
+       wf = wf - (wfm/(np.sqrt(wfv)+epsilon))*alpha
+       wc = wc - (wcm/(np.sqrt(wcv)+epsilon))*alpha
 
      bi -= bgi*alpha
      bo -= bgo*alpha
@@ -253,7 +264,7 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
 
 
 class lstm:
-    def __init__(self,hd_l,xl,ts,dn,d1,d2,mode,alpha,p,da):
+    def __init__(self,hd_l,xl,ts,dn,d1,d2,mode,alpha,p,da,min,max):
      # taking dimensiosn of hidden state be 64
      # consider ts is timestep
      #dnl = len(dn)
@@ -277,7 +288,7 @@ class lstm:
           cp = ct
           j =j+1
        #print("hdden output of 5 timesteps" + " " + str(ht))
-       print("inputting into dense layers done with lstm layers...")
+       #print("inputting into dense layers done with lstm layers...")
        d1o = dense103(ht,d1,d2,hd_l,w1,b1)
        d2o = dense3(d1o,d1,d2,w2,b2)
        print("done with dense layers...")
@@ -304,15 +315,23 @@ class lstm:
            cp = ct
            j =j+1
          #print("hdden output of 5 timesteps" + " " + str(ht))
-         print("inputting into dense layers done with lstm layers...")
-         d1o = dense103(ht,d1,d2,hd_l,w1,b1)
-         d2o = dense3(d1o,d1,d2,w2,b2)
+         #print("inputting into dense layers done with lstm layers...")
+         #d1o = dense103(ht,d1,d2,hd_l,w1,b1)
+         #d2o = dense3(d1o,d1,d2,w2,b2)
          i += 1
+     #print("wi" + str(wi))
+     #print("wo" + str(wo))
+     #print("wf" + str(wf))
+     #print("wc" + str(wc))
+     #print("w1" + str(w1))
+     #print("w2" + str(w2))
+     #print("ht" + str(ht))
+     #print("ct" + str(ct))
      if i==p:
          hp =ht
          cp =ct
-         predict=[]
-         predict = np.array(predict)
+         predict = np.empty((1,3))
+         print("started predicting...")
          while  i < (p + da) :
             print("*********************************")
             j = i
@@ -320,10 +339,11 @@ class lstm:
             b =i+ts
             while j < b :
               print("j value " + str(j))
-              co = cc(hp,d2o)
+              #print("input or xt for predicting" + str(d2o))
+              print(dn[j])
+              co = cc(hp,dn[j])
               #print("concatinated " + str(co))
               ct,ht,fo,it,c,ot = forward(wf,wi,wc,wo,bf,bi,bc,bo,co,cp)
-              cpp = cp
               hp = ht
               cp = ct
               j =j+1
@@ -331,18 +351,30 @@ class lstm:
             print("inputting into dense layers done with lstm layers...")
             d1o = dense103(ht,d1,d2,hd_l,w1,b1)
             d2o = dense3(d1o,d1,d2,w2,b2)
-            dn = np.append(dn,d2o)
-            predict = np.append(predict,d2o)
+            d2oo = d2o.reshape(-1,1).T
+            dn = np.concatenate((dn, d2oo), axis=0)
+            predict = np.concatenate((predict,d2oo))
             i += 1
      print("printing the predicted values")
      time.sleep(5)
      print(predict)
-
+     mm = input("if you wan to undo the minmaax scaler y/n:")
+     if mm == "y":
+        d = max-min
+        print(d)
+        columns_n = ["High","Low","Volume"]
+        predict = pd.DataFrame({"High":predict[:,0],"Low":predict[:,1],"Volume":predict[:,2]})
+        predict = (predict*(d) + min )
+        print("new predict" + str(predict))
+     if mm == "n":
+        exit()
+     if mm != "n" or mm !="y":
+        exit()
 
 print("steps\n data\n train ")
 step = input("step give data as input for preprocess data :")
 if step == "data":
-  dn = data()
+  dn,min,max = data()
 else :
    print("error should have data")
    exit()
@@ -361,6 +393,12 @@ if mode == "pb":
 alpha = float(input("give the value for learning rate :"))
 dnl = len(dn)
 p=dnl - ts
-lstm(hL,xl,ts,dn,d1,d2,mode,alpha,p,da)
+#p is the last iteration with out predicting
+lstm(hL,xl,ts,dn,d1,d2,mode,alpha,p,da,min,max)
 #hL == hd_l
-
+#10 line for data
+#39 line  for weights
+#141 line for dense
+#149 line for dense3
+#158 back propogation
+#266 lstm class
