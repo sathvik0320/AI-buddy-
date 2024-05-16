@@ -29,10 +29,8 @@ def data():
   min = ds_s.min()
   max = ds_s.max()
   dn = (ds_s - min)/(max - min)
-  print("after normalization of data\n")
   print(dn.head())
   print(dn.tail())
-  print("converting pandas to numpy array\n")
   dn = np.array(dn)
   return dn,min,max
 
@@ -75,7 +73,6 @@ def weights(hd_l,xl):
 
     b1=np.random.rand(d1)
     b2=np.random.rand(d2)
-
     return wf,wi,wc,wo,bf,bi,bc,bo,hp,cp,w1,b1,w2,b2,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv
 
 def sigmoid(x):
@@ -98,20 +95,45 @@ def sigmoid_d(x):
 
 
 def forgetgate(wf,co,bf):
+
+   #print("wf" + str(wf))
+   #print("co" + str(co))
    wn = np.dot(wf,co)
-   return sigmoid(wn + bf)
+   #print("at forgate" + str(wn))
+   si=sigmoid(wn + bf)
+   #print("sigmoid" + str(si))
+   #time.sleep(3)
+   return si
 
 def c_(wc,co,bc):
+  #print("wc" + str(wc))
+  #print("co" + str(co))
   wn = np.dot(wc,co)
-  return tanh(wn + bc)
+  #print("wn" + str(wn))
+  ta = tanh(wn + bc)
+  #print("tanh" + str(ta))
+  #time.sleep(3)
+  return ta
 
 def inpu(wi,co,bi):
+  #print("wi" + str(wi))
+  #print("co" + str(co))
   wn = np.dot(wi,co)
-  return sigmoid(wn + bi)
+  #print("wn" + str(wn))
+  si = sigmoid(wn + bi)
+  #print("sigmoid" + str(si))
+  #time.sleep(3)
+  return si
 
 def output(wo,co,bo):
+   #print("wo" + str(wo))
+   #print("co" + str(co))
    wn = np.dot(wo,co)
-   return sigmoid(wn + bo)
+   #print("wn" + str(wn))
+   si = sigmoid(wn + bo)
+   #print("digmoid" + str(si))
+   #time.sleep(3)
+   return si
 
 def cc(hp,xt):
    xt = np.array(xt)
@@ -124,12 +146,18 @@ def cs(wf,wi,wc,bf,bi,bc,co,cp):
    c = c_(wc,co,bc)
    i  = inpu(wi,co,bi)
    i = np.array(i)
-   return fo*cp + i*c,i,fo,c
+   sc = fo*cp + i*c
+   #print("sc cell state" + str(sc))
+   #time.sleep(3)
+   return sc,i,fo,c
 
 def h(wo,co,bo,ct):
   ot = output(wo,co,bo)
   ot = np.array(ot)
-  return ot*tanh(ct),ot
+  sh = ot*tanh(ct)
+  #print("sh hidden state" + str(sh))
+  #time.sleep(3)
+  return sh,ot
 
 def forward(wf,wi,wc,wo,bf,bi,bc,bo,co,cp):
 
@@ -141,14 +169,17 @@ def forward(wf,wi,wc,wo,bf,bi,bc,bo,co,cp):
 def dense103(ht,d1,d2,hd_l,w1,b1):
    #dense layer with 103 neurons
    #xavier random weights
-   w1 = w1*np.sqrt(1/hd_l + d1)
+   #print("ht" + str(ht))
    mu = np.dot(w1,ht)
+   #print("mu output of multiplcation" + str(mu))
    out = mu + b1
-   return sigmoid(out)
+   si = sigmoid(out)
+   #print("sigmod" + str(si))
+   time.sleep(2)
+   return si
 
 def dense3(d1o,d1,d2,w2,b2):
    #output layer
-   w2 = w2*np.sqrt(1/d1+d2)
    mu = np.dot(w2,d1o)
    out = mu + b2
    return sigmoid(out)
@@ -172,7 +203,6 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
      #r term is 0.1
      xt_1 = dn[b]
      loss = (d2o - xt_1)
-     print("loss" + str(loss))
      od = (d2o - xt_1)*sigmoid_d(d2o)
      he = np.dot(od,w2)
      hd = he*sigmoid_d(d1o)
@@ -233,7 +263,7 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
        wccm = wcm/(1-beta1**t)
 
        w1cv = w1v/(1-beta2**t)
-       w2cv = w2v/(1-beta2**t)
+       w2cm = w2v/(1-beta2**t)
        wicv = wiv/(1-beta2**t)
        wocv = wov/(1-beta2**t)
        wfcv = wfv/(1-beta2**t)
@@ -259,7 +289,6 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
      bo -= bgo*alpha
      bf -= bgf*alpha
      bc -= bgc*alpha
-
      return  w1,w2,b1,b2,wi,wf,wc,wo,bi,bf,bo,bc
 
 
@@ -380,7 +409,7 @@ else :
    exit()
 hl = input("dimension or length of hidden state should be default/new(64/128) :")
 if hl == "default":
-    hL = 128
+    hL = 4
 if hl == "new" :
    hL = int(input("give new dimesions for hidden state :"))
 ts = int(input("time step to be considered recommends 5 :"))
