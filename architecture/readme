@@ -43,7 +43,6 @@ lstmclassifier.py -- lstm(128)-lstm(64)-Dense(128)-Dense(1)
 Epoch 10/10
 104/104 [==============================] - 2s 19ms/step - loss: 2.8227e-06 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 2.4755e-06 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
 26/26 [==============================] - 2s 11ms/step
-
 array([[0.99999756],
        [0.99999756],
        [0.99999756],
@@ -54,10 +53,9 @@ array([[0.99999756],
        [0.99999756],
 
 lstmclassifier.py -- lstm(128)-lstm(64)-Dense(128)-Dense(1)
---when dropout used after bilstm(2) before Dense gave 1 as pedict
+--when dropout used after bilstm(2) before Dense(128) gave 1 as pedict
 104/104 [==============================] - 2s 17ms/step - loss: 8.9954e-08 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 3.6093e-08 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
 26/26 [==============================] - 2s 11ms/step
-
 array([[1.        ],
        [0.99999994],
        [1.        ],
@@ -70,10 +68,66 @@ array([[1.        ],
 Epoch 10/10
 104/104 [==============================] - 2s 20ms/step - loss: 4.1442e-06 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 1.9579e-06 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
 26/26 [==============================] - 2s 10ms/step
-
 array([[0.99999803],
        [0.99999803],
        [0.99999803],
        [0.99999803],
        [0.99999803],
        [0.99999803],
+
+lstmclassifier.py -- bilstm(64)-bilstm(32)-dense(32,1)
+--when dropout afte bilstm(64)-before dense(32)
+104/104 [==============================] - 1s 11ms/step - loss: 3.0997e-05 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 9.1927e-06 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+26/26 [==============================] - 2s 4ms/step
+array([[0.9999908 ],
+       [0.9999908 ],
+       [0.9999908 ],
+       [0.9999908 ],
+       [0.9999908 ],
+       [0.9999908 ],
+       [0.9999908 ],
+
+lstmclassifier.py -- bilstm(64)-bilstm(32)-dense(64,1)
+--when dropout is after bilstm(32)-before dense(64) 
+104/104 [==============================] - 1s 11ms/step - loss: 1.2053e-06 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 3.7294e-07 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+26/26 [==============================] - 2s 6ms/step
+array([[0.99999964],
+       [0.99999964],
+       [0.99999964],
+       [0.99999964],
+       [0.99999964],
+       [0.99999964],
+
+lstmclassifier.py --bilstm(64,32)-dense(64,1)
+--when no dropout is there
+104/104 [==============================] - 2s 20ms/step - loss: 8.1582e-06 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 7.2742e-06 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+26/26 [==============================] - 2s 4ms/step
+array([[0.99999285],
+       [0.99999285],
+       [0.99999285],
+       [0.99999285],
+       [0.99999285],
+       [0.99999285],
+       [0.99999285],
+
+lstmclassifier.py -- bi(128,64)--Dense(128,1)
+--when no dropout there 
+104/104 [==============================] - 2s 20ms/step - loss: 1.9051e-06 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 1.7420e-06 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+26/26 [==============================] - 2s 7ms/step
+array([[0.9999983 ],
+       [0.9999983 ],
+       [0.9999983 ],
+       [0.9999983 ],
+       [0.9999983 ],
+       [0.9999983 ],
+
+lstmclassifier.py--bilsmt(128,64)-Dense(64,1)
+--when dropout there
+104/104 [==============================] - 2s 18ms/step - loss: 7.8444e-06 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 7.2751e-06 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+26/26 [==============================] - 2s 6ms/step
+array([[0.9999927 ],
+       [0.9999927 ],
+       [0.9999927 ],
+       [0.9999927 ],
+       [0.9999927 ],
+       [0.9999927 ], 
