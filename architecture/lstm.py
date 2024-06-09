@@ -11,7 +11,7 @@ def data():
   ds  = pd.read_csv("/home/sathvik/YESBANK.NS.csv")
   print(ds.head())
   print(ds.tail())
-  ds_s = ds.loc[:,["High","Low","Volume"]]
+  ds_s = ds.loc[:,["High","Low"]]
   ds_s = ds_s.reset_index(drop = True )
   print("after reseting the to high low volume\n")
   print(ds_s.head())
@@ -263,7 +263,7 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
        wccm = wcm/(1-beta1**t)
 
        w1cv = w1v/(1-beta2**t)
-       w2cm = w2v/(1-beta2**t)
+       w2cv = w2v/(1-beta2**t)
        wicv = wiv/(1-beta2**t)
        wocv = wov/(1-beta2**t)
        wfcv = wfv/(1-beta2**t)
@@ -413,9 +413,9 @@ if hl == "default":
 if hl == "new" :
    hL = int(input("give new dimesions for hidden state :"))
 ts = int(input("time step to be considered recommends 5 :"))
-xl = int(input("dimensions of input x or number of features in x(3) :"))
+xl = int(input("dimensions of input x or number of features in x(2) :"))
 d1 = int(input("dense function1 no of neurons(103) :"))
-d2 = int(input("dense function2 no of neurons(3) :"))
+d2 = int(input("dense function2 no of neurons(2) :"))
 mode = input("give mode of program back for backropogation/forward and predict pb :")
 if mode == "pb":
       da = int(input("give number of days to predict :"))
