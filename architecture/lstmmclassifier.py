@@ -88,14 +88,14 @@ co._experimental_lower_tensor_list_ops = False
 co.optimizations=[tf.lite.Optimize.DEFAULT ]
 tmodel= co.convert()
 
-tflite="tflite"
+tflite="tflit.tflite"
 open(tflite,"wb").write(tmodel)
-size=os.path.getsize(tflite)
+size=os.path.getsize("tflit.tflite")
 print(round(size/(1024)))
 
 #converting the tflite to .h file
 !echo "const unsigned char model[]= {" > tml.h
-!cat tflite | xxd -i >> tml.h
+!cat tflit.tflite | xxd -i >> tml.h
 !echo "};" >> tml.h
 size = os.path.getsize("tml.h")
 print((size/(1024)))
