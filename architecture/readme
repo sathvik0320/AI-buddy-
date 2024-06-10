@@ -29,6 +29,7 @@ array([[0.99999994],
 
 
 lstmclassifier.py -lstm(128,64)-Dense(128,1)-
+--dropout after lstm(128)-lstm(64)
 104/104 [==============================] - 2s 19ms/step - loss: 1.2340e-07 - ac>
 26/26 [==============================] - 1s 4ms/step
 ends at 2481(line)
@@ -130,4 +131,60 @@ array([[0.9999927 ],
        [0.9999927 ],
        [0.9999927 ],
        [0.9999927 ],
-       [0.9999927 ], 
+       [0.9999927 ],
+ 
+lstmclassifier.py --bilstm(128,64)-Dense(64,128,1)
+--when dropout before Dense(64)-after bilstm(64)
+104/104 [==============================] - 4s 42ms/step - loss: 5.3132e-07 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 2.8649e-07 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+26/26 [==============================] - 5s 7ms/step
+array([[0.9999997 ],
+       [0.9999997 ],
+       [0.9999997 ],
+       [0.9999997 ],
+       [0.9999997 ],
+
+lstmclassifier.py--bilstm(128,64)-Dense(64,128,1)
+--when dropout after dense(64) - before(128)
+104/104 [==============================] - 2s 20ms/step - loss: 5.8585e-07 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 9.0565e-08 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+26/26 [==============================] - 2s 6ms/step
+array([[0.99999994],
+       [0.99999994],
+       [0.99999994],
+       [0.99999994],
+
+#### we are sgmoid has everywhere 
+lstmclassifier.py -- bilstm(128,64)-Dense(64,128,1)
+--when we have all sigmoid and dropout after dense(64) before-dense(128)
+104/104 [==============================] - 2s 18ms/step - loss: 1.9285e-04 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 1.5900e-04 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+26/26 [==============================] - 2s 6ms/step
+array([[0.99984103],
+       [0.99984103],
+       [0.99984103],
+       [0.99984103],
+       [0.99984103],
+       [0.99984103],
+
+#relu in dense(64)
+lstmmclassifier.py -- bilstm(128,4)--dense(64,1)
+Epoch 10/10
+802/802 [==============================] - 7s 9ms/step - loss: 2.0789e-08 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 7.3299e-09 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+115/115 [==============================] - 2s 5ms/step
+[[1.]
+ [1.]
+ [1.]
+ ...
+ [1.]
+ [1.]
+ [1.]]
+
+lstmmclassifier.py -- bilstm(128,64)--dense(128,1)
+Epoch 10/10
+802/802 [==============================] - 9s 11ms/step - loss: 2.5722e-09 - accuracy: 1.0000 - precision: 1.0000 - recall: 1.0000 - val_loss: 8.8508e-10 - val_accuracy: 1.0000 - val_precision: 1.0000 - val_recall: 1.0000
+115/115 [==============================] - 3s 3ms/step
+[[1.]
+ [1.]
+ [1.]
+ ...
+ [1.]
+ [1.]
+ [1.]]
