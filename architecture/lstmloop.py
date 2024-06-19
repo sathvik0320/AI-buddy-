@@ -160,3 +160,70 @@ print(x_t.shape)
 #predicitng the output of the test data
 #x_t is test data which we use for testing the model accuracy
 model.predict(x_t)
+
+
+#saving the model got conversio
+model.save("savemodel/my_model")
+
+
+#checking the size of the model
+import os
+print(os.path.getsize("savemodel/my_model")/1024) #in mbs
+
+
+#converting the model to tflite using tflite converter
+co=tf.lite.TFLIteConverter.from_saved_model("savemodel/my_model")
+co.target_spec.supported_ops = [
+    tf.lite.OpsSet.TFLITE_BUILTINS,  # Enable TensorFlow Lite built-in ops.
+    tf.lite.OpsSet.SELECT_TF_OPS     # Enable TensorFlow Select ops.
+]
+
+# Disable experimental lowering of tensor list ops
+co._experimental_lower_tensor_list_ops = False
+#optimization of the weights then converting to tflite
+co.optimizations=[tf.lite.Optimize.DEFAULT ]
+tmodel= co.convert()
+
+
+#writing the contents in tflite.tflite to tmodel (tmodel which we got after we converted the model to tflite and also optimzatio )
+tflite="tflite.tflite"
+open(tflite,"wb").write(tmodel)
+size=os.path.getsize(tflite)
+print(size/1024)
+
+
+#now we are converting the converted contents to c array for forming .h file for arduinolibraries
+!echo "const unsigned char model[]= {" > tml.h
+!cat tflit.tflite | xxd -i >> tml.h
+!echo "};" >> tml.h
+size = os.path.getsize("tml.h")
+print((size/(1024)))
+
+
+#this part is for testing the c array file or .h file which we just created
+
+interpreter = tf.lite.Interpreter(tflite)
+interpreter.allocate_tensors()
+input_data = np.array([[0,-2.71905,9.603001,.00705,9.980527,89.959526,105.80925]],dtype=np.float32)
+
+
+input_details = interpreter.get_input_details()
+input_shape = input_details[0]['shape']
+print("Expected input shape:", input_shape)
+input_data = np.reshape(input_data, input_shape)
+
+# Set the input tensor
+interpreter.set_tensor(input_details[0]['index'], input_data)
+
+# Run the inference
+interpreter.invoke()
+
+# Get output details
+output_details = interpreter.get_output_details()
+output_data = interpreter.get_tensor(output_details[0]['index'])
+
+print("TensorFlow Lite model output:", output_data)
+
+
+
+
