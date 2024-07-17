@@ -9,7 +9,7 @@ from keras import models
 
 #model architecture
 model = keras.Sequential()
-model.add(layers.Bidirectional(layers.LSTM(128,return_sequences=True,input_shape=(1,7)),merge_mode="ave"))
+model.add(layers.Bidirectional(layers.LSTM(128,return_sequences=True,input_shape=(1,4)),merge_mode="ave"))
 model.add(layers.Bidirectional(layers.LSTM(64,return_sequences=False ),merge_mode="ave"))
 model.add(layers.Dropout(0.2))
 model.add(layers.Dense(128,activation = "relu"))
@@ -36,6 +36,50 @@ for  i in range(0,numberofpersons-1):
           df.isna().sum()
           print("removing the num values")
           df.dropna()
+ alpha = 0.2
+ print(df.shape)
+ print(df.columns)
+
+ ax = df[' X (m/s2)']
+ ay = df[' Y (m/s2)']
+
+ gx=df[' Theta (deg)']
+ gy=df[' Phi (deg)']
+
+ ax = np.array(ax)
+ ay = np.array(ay)
+
+ gx=np.array(gx)
+ gy = np.array(gy)
+
+ print(ax.shape)
+
+ x1 = np.zeros(ax.shape[0])
+ y1 = np.zeros(ax.shape[0])
+ angle1 = np.zeros(ax.shape[0])
+
+ x2 = np.zeros(ay.shape[0])
+ y2 = np.zeros(ay.shape[0])
+ angle2 = np.zeros(ay.shape[0])
+
+ for i in range(0,ax.shape[0]-1):
+
+   x1[i]=(ax[i]*((1-alpha))+alpha*x1[i])
+   y1[i]=((1-alpha)*y1[i]+(1-alpha)*(gx[i+1]-gx[i]))
+
+   x2[i]=(ay[i]*((1-alpha))+alpha*x2[i])
+   y2[i]=((1-alpha)*y2[i]+(1-alpha)*(gy[i+1]-gy[i]))
+
+ for i in range(0,x1.shape[0]):
+     angle1[i] = (1-alpha)*(angle1[i]+y1[i]*0.00045)+(alpha*x1[i])
+     angle2[i] = (1-alpha)*(angle2[i]+y2[i]*0.00045)+(alpha*x2[i])
+        
+  
+
+ df.drop([' X (m/s2)',' Y (m/s2)',' Z (m/s2)',' Theta (deg)',' Phi (deg)'],axis=1,inplace=True)
+ print(df.columns)
+ df.insert(len(df.columns)-1,"angle1",angle1)
+ df.insert(len(df.columns)-1,"angle2",angle2)
 
  def create(x,t):
    d=[]
@@ -85,6 +129,49 @@ for  i in range(0,numberofpersons-1):
 
 
  dt = pd.read_csv("81.csv")
+ alpha = 0.2
+ print(df.shape)
+ print(df.columns)
+
+ ax = dt[' X (m/s2)']
+ ay = dt[' Y (m/s2)']
+
+ gx=dt[' Theta (deg)']
+ gy=dt[' Phi (deg)']
+
+ ax = np.array(ax)
+ ay = np.array(ay)
+
+ gx=np.array(gx)
+ gy = np.array(gy)
+
+ print(ax.shape)
+
+ x1 = np.zeros(ax.shape[0])
+ y1 = np.zeros(ax.shape[0])
+ angle1 = np.zeros(ax.shape[0])
+
+ x2 = np.zeros(ay.shape[0])
+ y2 = np.zeros(ay.shape[0])
+ angle2 = np.zeros(ay.shape[0])
+
+ for i in range(0,ax.shape[0]-1):
+
+   x1[i]=(ax[i]*((1-alpha))+alpha*x1[i])
+   y1[i]=((1-alpha)*y1[i]+(1-alpha)*(gx[i+1]-gx[i]))
+
+   x2[i]=(ay[i]*((1-alpha))+alpha*x2[i])
+   y2[i]=((1-alpha)*y2[i]+(1-alpha)*(gy[i+1]-gy[i]))
+
+ for i in range(0,x1.shape[0]):
+     angle1[i] = (1-alpha)*(angle1[i]+y1[i]*0.00045)+(alpha*x1[i])
+     angle2[i] = (1-alpha)*(angle2[i]+y2[i]*0.00045)+(alpha*x2[i])
+
+ 
+ dt.drop([' X (m/s2)',' Y (m/s2)',' Z (m/s2)',' Theta (deg)',' Phi (deg)'],axis=1,inplace=True)
+ print(df.columns)
+ dt.insert(len(dt.columns)-1,"angle1",angle1)
+ dt.insert(len(dt.columns)-1,"angle2",angle2)
  #dt["bin"] = [
  #   1 if x < len(dt["Time (s)"]) else 1 for x in range(0,len(dt["Time (s)"]))
  #]
@@ -141,6 +228,49 @@ for  i in range(0,numberofpersons-1):
 
 #creating the data for testing using test data
 dc = pd.read_csv("9.csv")
+alpha = 0.2
+print(df.shape)
+print(df.columns)
+
+ax = dc[' X (m/s2)']
+ay = dc[' Y (m/s2)']
+
+gx=dc[' Theta (deg)']
+gy=dc[' Phi (deg)']
+
+ax = np.array(ax)
+ay = np.array(ay)
+
+gx=np.array(gx)
+gy = np.array(gy)
+
+print(ax.shape)
+
+x1 = np.zeros(ax.shape[0])
+y1 = np.zeros(ax.shape[0])
+angle1 = np.zeros(ax.shape[0])
+
+x2 = np.zeros(ay.shape[0])
+y2 = np.zeros(ay.shape[0])
+angle2 = np.zeros(ay.shape[0])
+
+for i in range(0,ax.shape[0]-1):
+
+   x1[i]=(ax[i]*((1-alpha))+alpha*x1[i])
+   y1[i]=((1-alpha)*y1[i]+(1-alpha)*(gx[i+1]-gx[i]))
+
+   x2[i]=(ay[i]*((1-alpha))+alpha*x2[i])
+   y2[i]=((1-alpha)*y2[i]+(1-alpha)*(gy[i+1]-gy[i]))
+
+for i in range(0,x1.shape[0]):
+     angle1[i] = (1-alpha)*(angle1[i]+y1[i]*0.00045)+(alpha*x1[i])
+     angle2[i] = (1-alpha)*(angle2[i]+y2[i]*0.00045)+(alpha*x2[i])
+
+ 
+dc.drop([' X (m/s2)',' Y (m/s2)',' Z (m/s2)',' Theta (deg)',' Phi (deg)'],axis=1,inplace=True)
+print(dc.columns)
+dc.insert(len(dc.columns)-1,"angle1",angle1)
+dc.insert(len(dc.columns)-1,"angle2",angle2)
 #8 male 9 female
 tc = dc.shape[0]-2
 if dc.isna().any().any():
@@ -225,5 +355,5 @@ output_data = interpreter.get_tensor(output_details[0]['index'])
 print("TensorFlow Lite model output:", output_data)
 
 
-
+d
 
