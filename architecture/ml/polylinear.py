@@ -34,8 +34,10 @@ class polylinearRegression(torch.nn.Module):
 
       def forward(self,x):
            output=0
+           z=x
            for i,layer in enumerate(self.poly):
-                   output = output + layer(x)
+                   output = layer(z)
+                   z=output
            return output
 
 
