@@ -14,6 +14,7 @@ print(str(x.shape)+str(y.shape))
 
 x_tensor = torch.tensor(x, dtype=torch.float32)
 y_tensor = torch.tensor(y, dtype=torch.float32)
+print(x_tensor.shape)
 #definig the class for lineargresson
 
 class LinearRegression(torch.nn.Module):
@@ -21,6 +22,7 @@ class LinearRegression(torch.nn.Module):
     #def __init__ is a constructor for class
     def __init__(self):
           super(LinearRegression,self).__init__()
+          #torch.nn.Linear(input_dimensions,output_dimensions(1))
           self.linear = torch.nn.Linear(1,1)
           #initialized linear 1 input 1 output layer
 
