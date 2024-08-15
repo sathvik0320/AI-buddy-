@@ -44,7 +44,7 @@ class polylinearRegression(torch.nn.Module):
 model = polylinearRegression()
 
 error = torch.nn.MSELoss()
-optimizer =torch.optim.SGD(model.parameters(),lr=0.001)
+optimizer =torch.optim.SGD(model.parameters(),lr=0.001,weight_decay=0.01)
 optimizer.zero_grad()
 
 for a in range (epochs):
