@@ -175,7 +175,6 @@ def dense103(ht,d1,d2,hd_l,w1,b1):
    out = mu + b1
    si = sigmoid(out)
    #print("sigmod" + str(si))
-   time.sleep(2)
    return si
 
 def dense3(d1o,d1,d2,w2,b2):
@@ -188,7 +187,7 @@ def dense3(d1o,d1,d2,w2,b2):
 
 def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi,wc,wo,bf,bi,bc,bo,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfv,wcv,t):
      #epsilon for non zero division
-     epsilon = 1e-8
+     epsilon = 0.01
      beta1 = 0.5
      beta2 = 0.555
      #input into sigmoids
@@ -201,8 +200,9 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
      #output delta error
      #d2o is output predicted
      #r term is 0.1
-     xt_1 = dn[b]
+     xt_1 = dn[b+1]
      loss = (d2o - xt_1)
+     #time.sleep(2)
      od = (d2o - xt_1)*sigmoid_d(d2o)
      he = np.dot(od,w2)
      hd = he*sigmoid_d(d1o)
@@ -238,6 +238,21 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
      b1 += np.sum(od)*alpha
      b2 += np.sum(hd)*alpha
 
+     #print(str(g1)+"g1")
+     #print(str(g2)+"g2")
+     #print(str(gi)+"gi")
+     #print(str(go)+"go")
+     #print(str(gf)+"gf")
+     #print(str(gc)+"gc")
+
+
+     #print(str(w1m)+"w1m")
+     #print(str(w2m)+"w2m")
+     #print(str(wim)+"wim")
+     #print(str(wom)+"wom")
+     #print(str(wfm)+"wfm")
+     #print(str(wcm)+"wcm")
+
      #calculatng average momentums for w1,w2,wi,wo,wf,wc,(gradients,and squared gradients)
      w1m = w1m*beta1 + (1-beta1)*g1
      w2m = w2m*beta1 + (1-beta1)*g2
@@ -246,12 +261,21 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
      wfm = wfm*beta1 + (1-beta1)*gf
      wcm = wcm*beta1 + (1-beta1)*gc
 
-     w1v = w1v*beta1 + (1-beta1)*g1**2
-     w2v = w2v*beta1 + (1-beta1)*g2**2
-     wiv = wiv*beta1 + (1-beta1)*gi**2
-     wov = wov*beta1 + (1-beta1)*go**2
-     wfv = wfv*beta1 + (1-beta1)*gf**2
-     wcv = wcv*beta1 + (1-beta1)*gc**2
+     #print(str(w1m)+"w1m")
+     #print(str(w2m)+"w2m")
+     #print(str(wim)+"wim")
+     #print(str(wom)+"wom")
+     #print(str(wfm)+"wfm")
+     #print(str(wcm)+"wcm")
+     #time.sleep(3)
+
+     w1v = w1v*beta1 + (1-beta1)*(g1**2)
+     w2v = w2v*beta1 + (1-beta1)*(g2**2)
+     wiv = wiv*beta1 + (1-beta1)*(gi**2)
+     wov = wov*beta1 + (1-beta1)*(go**2)
+     wfv = wfv*beta1 + (1-beta1)*(gf**2)
+     wcv = wcv*beta1 + (1-beta1)*(gc**2)
+
 
      if t >= 1:
        #calculating the biase corrected weights as every momenteum average should be bias corrected
@@ -269,27 +293,27 @@ def backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cp,fo,it,c_,ot,co,wf,wi
        wfcv = wfv/(1-beta2**t)
        wccv = wcv/(1-beta2**t)
        #updating the parameters
-       w1 = w1 - (w1cm/(np.sqrt(w1cv)+epsilon))*alpha
-       w2 = w2 - (w2cm/(np.sqrt(w2cv)+epsilon))*alpha
-       wi = wi - (wicm/(np.sqrt(wicv)+epsilon))*alpha
-       wo = wo - (wocm/(np.sqrt(wocv)+epsilon))*alpha
-       wf = wf - (wfcm/(np.sqrt(wfcv)+epsilon))*alpha
-       wc = wc - (wccm/(np.sqrt(wccv)+epsilon))*alpha
+       w1 = w1 - (w1cm/(np.sqrt(w1cv+epsilon)))*alpha
+       w2 = w2 - (w2cm/(np.sqrt(w2cv+epsilon)))*alpha
+       wi = wi - (wicm/(np.sqrt(wicv+epsilon)))*alpha
+       wo = wo - (wocm/(np.sqrt(wocv+epsilon)))*alpha
+       wf = wf - (wfcm/(np.sqrt(wfcv+epsilon)))*alpha
+       wc = wc - (wccm/(np.sqrt(wccv+epsilon)))*alpha
 
      if t == 0:
        #updating parameters without biase correction as i initilzed the momentums to 0 in initial
-       w1 = w1 - (w1m/(np.sqrt(w1v)+epsilon))*alpha
-       w2 = w2 - (w2m/(np.sqrt(w2v)+epsilon))*alpha
-       wi = wi - (wim/(np.sqrt(wiv)+epsilon))*alpha
-       wo = wo - (wom/(np.sqrt(wov)+epsilon))*alpha
-       wf = wf - (wfm/(np.sqrt(wfv)+epsilon))*alpha
-       wc = wc - (wcm/(np.sqrt(wcv)+epsilon))*alpha
+       w1 = w1 - (w1m/(np.sqrt(w1v+epsilon)))*alpha
+       w2 = w2 - (w2m/(np.sqrt(w2v+epsilon)))*alpha
+       wi = wi - (wim/(np.sqrt(wiv+epsilon)))*alpha
+       wo = wo - (wom/(np.sqrt(wov+epsilon)))*alpha
+       wf = wf - (wfm/(np.sqrt(wfv+epsilon)))*alpha
+       wc = wc - (wcm/(np.sqrt(wcv+epsilon)))*alpha
 
      bi -= bgi*alpha
      bo -= bgo*alpha
      bf -= bgf*alpha
      bc -= bgc*alpha
-     return  w1,w2,b1,b2,wi,wf,wc,wo,bi,bf,bo,bc
+     return  w1,w2,b1,b2,wi,wf,wc,wo,bi,bf,bo,bc,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv
 
 
 class lstm:
@@ -302,7 +326,7 @@ class lstm:
      wf,wi,wc,wo,bf,bi,bc,bo,hp,cp,w1,b1,w2,b2,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv = weights(hd_l,xl)
 
      i = 0
-     while  i < p:
+     while  i < p-1:
        print("*********************************")
        j = i
        print("i value " + str(i))
@@ -321,10 +345,33 @@ class lstm:
        d1o = dense103(ht,d1,d2,hd_l,w1,b1)
        d2o = dense3(d1o,d1,d2,w2,b2)
        print("done with dense layers...")
+       wff,wii,wcc,woo,w11,w22,w1mm,wimm,w1vv=wf,wi,wc,wo,w1,w2,w1m,wim,w1v
+       #if i > 4:
+       #  print("*")
+       #  print(wff)
+       #  print(wii)
+       #  print(woo)
+       #  print(w11)
+       #  print(w22)
+       #  print(w1mm)
+
        if mode == "back" or mode =="pb":
-        w1,w2,b1,b2,wi,wf,wc,wo,bi,bf,bo,bc= backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cpp,fo,it,c,ot,co,wf,wi,wc,wo,bf,bi,bc,bo,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv,i)
-        print("back propogation done")
+         w1,w2,b1,b2,wi,wf,wc,wo,bi,bf,bo,bc,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv= backpropogation(w1,w2,b1,b2,d1o,d2o,alpha,dn,b,ht,ct,cpp,fo,it,c,ot,co,wf,wi,wc,wo,bf,bi,bc,bo,w1m,w2m,wim,wom,wfm,wcm,w1v,w2v,wiv,wov,wfm,wcv,i)
+         print("back propogation done")
        i += 1
+
+       #if i > 4:
+       #  print(wf)
+       #  print(wi)
+       #  print(wo)
+       #  print(w1)
+       #  print(w2)
+       #  print(w1m)
+       #  print("*")
+       #  time.sleep(3)
+       #  if i>6:
+       #    exit()
+
      if mode=="pb":
        hp=ht
        cp=ct
@@ -385,7 +432,6 @@ class lstm:
             predict = np.concatenate((predict,d2oo))
             i += 1
      print("printing the predicted values")
-     time.sleep(5)
      print(predict)
      mm = input("if you wan to undo the minmaax scaler y/n:")
      if mm == "y":
@@ -407,9 +453,9 @@ if step == "data":
 else :
    print("error should have data")
    exit()
-hl = input("dimension or length of hidden state should be default/new(64/128) :")
+hl = input("dimension or length of hidden state should be default/new :")
 if hl == "default":
-    hL = 4
+    hL = 64
 if hl == "new" :
    hL = int(input("give new dimesions for hidden state :"))
 ts = int(input("time step to be considered recommends 5 :"))
