@@ -95,6 +95,15 @@ testpad = testvocab.apply(lambda x : x=[:l] if len(x)> l else(f.pad(x,pad=(0,l-l
 print(tranpad.shape)
 print(testpad.shape)
 
+y_train =torch.tensor(y_train,dtype=torch.float32)
+y_test =torch.tensor(y_test,dtype=torch.float32)
+
+y_train =y_train.view(-1,1)
+print(y_train.size())
+y_test = y_test.view(-1,1)
+print(y_test.size())
+
+
 #creating the model
 def spam(torch.nn.Module):
 
@@ -105,21 +114,103 @@ def spam(torch.nn.Module):
          self.embedding = torch.nn.Embedding(mak_tokens,embedding_dim)
 
          #lstm takes embeddings as inputs and  ouputs hidden output
-         self.lstm = torch.nn.LSTM(embedding_dim,hidden_dim,num_layers=2,dropout=0.2,bidirectional=False)
+         self.lstm = torch.nn.LSTM(embedding_dim,hidden_dim,num_layers=2,batch_first=false,dropout=0.2,bidirectional=False)
          self.dropout = torch.nn.Dropout(0.2)
          self.linear = torch.nn.Linear(hidden_dim,target_size)
          self.sigmoid = torch.nn.Sigmoid()
 
+       def forward(self,x)
+
+        embedings = self.embedding(x)
+        output,(ho,co)=self.lstm(embedings)
+        finalout = self.linear(output_last
+        finaloutput = self.linear(output)
+        probability = self.Sigmoid(output)
+        #print(embedings.size())
+        #output,(ho,co)=self.lstm()
+        #input to lstm is len(sentence),batch,input_size(embedding_dimesnion)
+        #return_sequences=False, you can use h_n[-1] or lstm_out[:, -1, :]
+        #print(embedings.size())
+        #embedings.view(1,len(x),-1)
+        #print(output.size())
+        #input to linear is numbner of features (numberof elements,input_features 
+
+        return probability
 
 
+embedding_dim = 16
+hidden_dim=20
+max_tokens=500
+target_size=1
 
-model = spam()
-loss_function = torch.nn.MSELoss()
-optimzer = torch.optim.Adam(model.parameters(),)
+model = spam(embedding_dim,hidden_dim,max_tokens,target_size)
+lossfunction = torch.nn.BCELoss()
+optimizer = torch.optim.Adam(model.parameters(),lr = 0.9,betas=(0.9,0.99),eps=10**-6,weight_decay=0.002)
+
+from torcheval.metrics import BinaryAccuracy
+metric = BinaryAccuracy()
+#metric.update(input,target)
+#metric.compute()
+#metric.reset()
+from torch.utils.data import Dataset,DataLoader
+
+#training the model
+epochs = int(input("number of epochs for training"))
 
 
+best =500
+for epoch in range(epochs):
+  #model.train() will tell model to act as training model
+
+  model.train()
+  trainavgLoss=0
+  for msg,label in zip(traintensor,y_train):
+
+         msg=msg.view(1,-1)
+         #print(msg.size())
+         model.zero_grad()
+         outputt = model(msg)
+         outputt =outputt.view(-1)
+         #label=label.view(1,-1)
+
+         losst = lossfunction(outputt,label)
+         losst.backward()
+         optimizer.step()
+         trainavgLoss += losst.item()
+
+  model.eval()
+  valavgLoss=0
+  with torch.no_grad():
+     for msg,label in zip(testtensor,y_test):
+
+           msg=msg.view(1,-1)
+           outputv = model(msg)
+           outputv =outputv.view(-1)
+           lossv = lossfunction(outputv,label)
+           #lossv.backward()
+           #optimizer.step()
+           valavgLoss += lossv.item()
+
+  trainavgLoss = trainavgLoss/len(y_train)
+  valavgLoss = valavgLoss/len(y_test)
+
+  trainavgLoss =torch.tensor(trainavgLoss,dtype=torch.float32)
+  valavgLoss=torch.tensor(valavgLoss,dtype=torch.float32)
+
+  a=0
+  a=torch.tensor(a,dtype=torch.float32)
+
+  #early stopping
+  if best > valavgLoss:
+      best = valavgLoss
+      bestepoch = epoch
 
 
+  #calculate accuracy
+  a=(100-valavgLoss)%100
+
+
+print(bestepoch)
 
 
 
